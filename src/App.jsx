@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   FiSearch,
   FiStar,
@@ -9,6 +9,8 @@ import {
   FiZap,
   FiMapPin,
   FiSend,
+  FiChevronLeft,
+  FiChevronRight,
 } from 'react-icons/fi';
 import Header from './components/Header';
 import WarehouseMap from './components/WarehouseMap';
@@ -40,6 +42,31 @@ export default function App() {
   const [showJCModal, setShowJCModal] = useState(false);
   const [showMobileQuote, setShowMobileQuote] = useState(false);
   const mapRef = useRef(null);
+  const tabsRef = useRef(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
+
+  const checkTabsArrows = () => {
+    const el = tabsRef.current;
+    if (!el) return;
+    setShowLeftArrow(el.scrollLeft > 0);
+    setShowRightArrow(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(checkTabsArrows, 100);
+    window.addEventListener('resize', checkTabsArrows);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkTabsArrows);
+    };
+  }, [searchQuery]);
+
+  const scrollTabs = (dir) => {
+    const el = tabsRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * 150, behavior: 'smooth' });
+  };
 
   const handleWarehouseSelect = (state) => {
     setWarehouse(state);
@@ -92,15 +119,16 @@ export default function App() {
     : currentCategory.items;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', overflowX: 'hidden' }}>
       <Header onContactClick={() => setShowContactModal(true)} />
 
       {/* ===== HERO SECTION — Map Background ===== */}
       <section
+        className="hero-section"
         style={{
           position: 'relative',
           overflow: 'hidden',
-          minHeight: 640,
+          minHeight: 720,
           borderBottom: '1px solid var(--border)',
         }}
       >
@@ -137,6 +165,7 @@ export default function App() {
 
         {/* Content overlay — sits at top */}
         <div
+          className="hero-overlay-content"
           style={{
             position: 'relative',
             zIndex: 2,
@@ -201,6 +230,7 @@ export default function App() {
 
           {/* Warehouse buttons */}
           <div
+            className="warehouse-buttons"
             style={{
               display: 'flex',
               justifyContent: 'center',
@@ -249,121 +279,101 @@ export default function App() {
       </section>
 
       {/* ===== MAIN CONTENT ===== */}
-      <div
-        style={{
-          maxWidth: 1320,
-          margin: '0 auto',
-          padding: '32px 28px 60px',
-          display: 'grid',
-          gridTemplateColumns: '1fr 380px',
-          gap: 32,
-          alignItems: 'start',
-        }}
-      >
+      <div className="main-grid">
         {/* Left Column - Services */}
-        <div>
+        <div style={{ minWidth: 0 }}>
           {/* Search */}
-          <div
-            style={{
-              marginBottom: 20,
-            }}
-          >
-            <div style={{ position: 'relative' }}>
-              <input
-                type="text"
-                placeholder="Search services..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 14px 10px 38px',
-                  borderRadius: 10,
-                  background: 'var(--white)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text-primary)',
-                  fontSize: 13,
-                  fontFamily: "'Inter', sans-serif",
-                  outline: 'none',
-                  boxShadow: 'var(--shadow-sm)',
-                }}
-              />
-              <FiSearch
-                size={15}
-                style={{
-                  position: 'absolute',
-                  left: 12,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-faint)',
-                }}
-              />
-            </div>
+          <div className="search-wrapper">
+            <FiSearch size={15} className="search-icon" />
+            <input
+              className="search-input"
+              type="text"
+              placeholder="Search services..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
           {/* Category tabs */}
           {!searchQuery && (
-            <div
-              style={{
-                display: 'flex',
-                gap: 6,
-                marginBottom: 20,
-                overflowX: 'auto',
-                paddingBottom: 4,
-              }}
-            >
-              {Object.entries(SERVICES).map(([key, cat]) => {
-                const IconComponent = CATEGORY_ICONS[cat.iconKey];
-                const catCount = cat.items.reduce(
-                  (c, item) => c + (quantities[item.code] > 0 ? 1 : 0),
-                  0
-                );
-                const isActive = activeCategory === key;
+            <div className="tabs-scroll-wrapper">
+              {showLeftArrow && (
+                <button
+                  className="tabs-arrow tabs-arrow-left"
+                  onClick={() => scrollTabs(-1)}
+                  aria-label="Scroll tabs left"
+                >
+                  <FiChevronLeft size={16} />
+                </button>
+              )}
+              <div
+                className="tabs-scroll-inner"
+                ref={tabsRef}
+                onScroll={checkTabsArrows}
+              >
+                {Object.entries(SERVICES).map(([key, cat]) => {
+                  const IconComponent = CATEGORY_ICONS[cat.iconKey];
+                  const catCount = cat.items.reduce(
+                    (c, item) => c + (quantities[item.code] > 0 ? 1 : 0),
+                    0
+                  );
+                  const isActive = activeCategory === key;
 
-                return (
-                  <button
-                    key={key}
-                    onClick={() => setActiveCategory(key)}
-                    style={{
-                      padding: '8px 16px',
-                      borderRadius: 8,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      fontFamily: "'Inter', sans-serif",
-                      whiteSpace: 'nowrap',
-                      background: isActive ? 'var(--primary)' : 'var(--white)',
-                      color: isActive ? 'var(--white)' : 'var(--text-muted)',
-                      border: `1px solid ${isActive ? 'var(--primary)' : 'var(--border)'}`,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      boxShadow: isActive
-                        ? '0 2px 8px rgba(37,99,235,0.2)'
-                        : 'var(--shadow-sm)',
-                    }}
-                  >
-                    {IconComponent && <IconComponent size={13} />}
-                    {cat.label}
-                    {catCount > 0 && (
-                      <span
-                        style={{
-                          background: isActive
-                            ? 'rgba(255,255,255,0.3)'
-                            : 'var(--primary)',
-                          color: isActive ? 'var(--white)' : 'var(--white)',
-                          fontSize: 10,
-                          fontWeight: 700,
-                          padding: '1px 7px',
-                          borderRadius: 10,
-                        }}
-                      >
-                        {catCount}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setActiveCategory(key)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        fontFamily: "'Inter', sans-serif",
+                        whiteSpace: 'nowrap',
+                        background: isActive ? 'var(--primary)' : 'var(--white)',
+                        color: isActive ? 'var(--white)' : 'var(--text-muted)',
+                        border: `1px solid ${isActive ? 'var(--primary)' : 'var(--border)'}`,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        boxShadow: isActive
+                          ? '0 2px 8px rgba(37,99,235,0.2)'
+                          : 'var(--shadow-sm)',
+                      }}
+                    >
+                      {IconComponent && <IconComponent size={13} />}
+                      {cat.label}
+                      {catCount > 0 && (
+                        <span
+                          style={{
+                            background: isActive
+                              ? 'rgba(255,255,255,0.3)'
+                              : 'var(--primary)',
+                            color: isActive ? 'var(--white)' : 'var(--white)',
+                            fontSize: 10,
+                            fontWeight: 700,
+                            padding: '1px 7px',
+                            borderRadius: 10,
+                          }}
+                        >
+                          {catCount}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              {showRightArrow && (
+                <button
+                  className="tabs-arrow tabs-arrow-right"
+                  onClick={() => scrollTabs(1)}
+                  aria-label="Scroll tabs right"
+                >
+                  <FiChevronRight size={16} />
+                </button>
+              )}
             </div>
           )}
 
@@ -419,6 +429,8 @@ export default function App() {
             gst={gst}
             total={total}
             warehouse={selectedWarehouse}
+            warehouses={WAREHOUSES}
+            onWarehouseChange={handleWarehouseSelect}
             onClear={clearAll}
             onSendQuote={() => setShowSendModal(true)}
             onRemoveItem={removeItem}
@@ -491,6 +503,8 @@ export default function App() {
                 gst={gst}
                 total={total}
                 warehouse={selectedWarehouse}
+                warehouses={WAREHOUSES}
+                onWarehouseChange={handleWarehouseSelect}
                 onClear={clearAll}
                 onSendQuote={() => {
                   setShowMobileQuote(false);

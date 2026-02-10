@@ -11,6 +11,8 @@ export default function QuoteSummary({
   gst,
   total,
   warehouse,
+  warehouses,
+  onWarehouseChange,
   companyName,
   onClear,
   onSendQuote,
@@ -168,16 +170,30 @@ export default function QuoteSummary({
                 color: 'var(--text-faint)',
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
-                marginBottom: 4,
+                marginBottom: 6,
                 fontWeight: 600,
               }}
             >
               Warehouse
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>
-              {warehouse.city}, {warehouse.state}
-            </div>
-            <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 2 }}>
+            {warehouses && onWarehouseChange ? (
+              <select
+                className="warehouse-select"
+                value={warehouse.state}
+                onChange={(e) => onWarehouseChange(e.target.value)}
+              >
+                {warehouses.map((wh) => (
+                  <option key={wh.state} value={wh.state}>
+                    {wh.city}, {wh.state}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>
+                {warehouse.city}, {warehouse.state}
+              </div>
+            )}
+            <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 4 }}>
               {warehouse.address}
             </div>
           </div>

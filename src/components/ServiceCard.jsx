@@ -7,6 +7,7 @@ export default function ServiceCard({ item, qty, onQtyChange }) {
 
   return (
     <div
+      className="service-card"
       style={{
         background: isActive ? 'var(--primary-50)' : 'var(--white)',
         border: `1px solid ${isActive ? 'var(--primary-200)' : 'var(--border)'}`,
@@ -126,7 +127,7 @@ export default function ServiceCard({ item, qty, onQtyChange }) {
       </div>
 
       {!isPoa && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
+        <div className="service-card-controls">
           <button
             onClick={() => onQtyChange(Math.max(0, qty - 1))}
             style={{
@@ -169,15 +170,7 @@ export default function ServiceCard({ item, qty, onQtyChange }) {
       )}
 
       {isActive && !isPoa && (
-        <div
-          style={{
-            fontSize: 13,
-            fontWeight: 700,
-            color: 'var(--primary)',
-            minWidth: 80,
-            textAlign: 'right',
-          }}
-        >
+        <div className="service-card-total">
           {formatCurrency(item.rate * qty)}
         </div>
       )}
