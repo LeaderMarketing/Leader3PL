@@ -24,7 +24,7 @@ export default function Header({ onContactClick }) {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <img
-            src="/images/leader3pl-logo.png"
+            src={`${import.meta.env.BASE_URL}images/leader3pl-logo.png`}
             alt="Leader 3PL"
             style={{
               maxHeight: 20,

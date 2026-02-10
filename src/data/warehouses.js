@@ -7,7 +7,7 @@ export const WAREHOUSES = [
     phone: '08 8112 6000',
     lat: -34.9285,
     lng: 138.6007,
-    image: '/images/Leader_NSW.jpg',
+    image: `${import.meta.env.BASE_URL}images/Leader_NSW.jpg`,
   },
   {
     state: 'QLD',
@@ -17,7 +17,7 @@ export const WAREHOUSES = [
     phone: '07 3151 6000',
     lat: -27.5530,
     lng: 153.0351,
-    image: '/images/Leader_NSW.jpg',
+    image: `${import.meta.env.BASE_URL}images/Leader_NSW.jpg`,
   },
   {
     state: 'NSW',
@@ -27,7 +27,7 @@ export const WAREHOUSES = [
     phone: '02 7903 5000',
     lat: -33.8642,
     lng: 151.0444,
-    image: '/images/Leader_NSW.jpg',
+    image: `${import.meta.env.BASE_URL}images/Leader_NSW.jpg`,
   },
   {
     state: 'WA',
@@ -37,7 +37,7 @@ export const WAREHOUSES = [
     phone: '08 6369 6000',
     lat: -31.9018,
     lng: 115.8134,
-    image: '/images/Leader_NSW.jpg',
+    image: `${import.meta.env.BASE_URL}images/Leader_NSW.jpg`,
   },
   {
     state: 'VIC',
@@ -47,6 +47,6 @@ export const WAREHOUSES = [
     phone: '03 9037 3000',
     lat: -37.9353,
     lng: 145.1204,
-    image: '/images/Leader_NSW.jpg',
+    image: `${import.meta.env.BASE_URL}images/Leader_NSW.jpg`,
   },
 ];
