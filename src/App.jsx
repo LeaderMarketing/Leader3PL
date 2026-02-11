@@ -1,12 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import {
   FiSearch,
-  FiStar,
+  FiTruck,
   FiArchive,
-  FiTool,
-  FiFileText,
-  FiRotateCcw,
-  FiZap,
+  FiPackage,
   FiMapPin,
   FiSend,
   FiChevronLeft,
@@ -24,16 +21,13 @@ import { SERVICES } from './data/services';
 import { formatCurrency } from './utils/formatCurrency';
 
 const CATEGORY_ICONS = {
-  star: FiStar,
+  truck: FiTruck,
   archive: FiArchive,
-  tool: FiTool,
-  fileText: FiFileText,
-  rotateCcw: FiRotateCcw,
-  zap: FiZap,
+  package: FiPackage,
 };
 
 export default function App() {
-  const [activeCategory, setActiveCategory] = useState('popular');
+  const [activeCategory, setActiveCategory] = useState('upfront');
   const [quantities, setQuantities] = useState({});
   const [warehouse, setWarehouse] = useState('SA');
   const [searchQuery, setSearchQuery] = useState('');
@@ -92,12 +86,12 @@ export default function App() {
 
   const clearAll = () => setQuantities({});
 
-  // Gather selected items (only priced items, not POA)
+  // Gather selected items (only priced items, not POA) — tagged with costType
   const quoteItems = [];
-  Object.values(SERVICES).forEach((cat) => {
+  Object.entries(SERVICES).forEach(([key, cat]) => {
     cat.items.forEach((item) => {
       const qty = quantities[item.code] || 0;
-      if (qty > 0 && !item.poa) quoteItems.push({ ...item, qty });
+      if (qty > 0 && !item.poa) quoteItems.push({ ...item, qty, costType: key });
     });
   });
 
@@ -389,6 +383,21 @@ export default function App() {
             >
               {filteredItems.length} result
               {filteredItems.length !== 1 ? 's' : ''} for "{searchQuery}"
+            </div>
+          )}
+
+          {/* Section description */}
+          {!searchQuery && SERVICES[activeCategory]?.description && (
+            <div
+              style={{
+                fontSize: 12,
+                color: 'var(--text-muted)',
+                marginBottom: 12,
+                fontWeight: 500,
+                fontStyle: 'italic',
+              }}
+            >
+              {SERVICES[activeCategory].description}
             </div>
           )}
 

@@ -4,6 +4,13 @@ import AnimatedNumber from './AnimatedNumber';
 import { formatCurrency } from '../utils/formatCurrency';
 import { generateQuoteText } from '../utils/generateQuoteText';
 import { generatePdf } from '../utils/generatePdf';
+import { COST_TYPE_COLORS } from '../data/services';
+
+const SECTION_CONFIG = [
+  { key: 'upfront', label: 'Up-Front Costs' },
+  { key: 'storage', label: 'Ongoing Storage Costs' },
+  { key: 'inventory', label: 'Inventory Costs' },
+];
 
 export default function QuoteSummary({
   items,
@@ -19,7 +26,25 @@ export default function QuoteSummary({
   onRemoveItem,
   onQtyChange,
 }) {
-  const [itemsExpanded, setItemsExpanded] = useState(true);
+  const [expandedSections, setExpandedSections] = useState({
+    upfront: true,
+    storage: true,
+    inventory: true,
+  });
+
+  const toggleSection = (key) => {
+    setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const sections = SECTION_CONFIG.map((cfg) => {
+    const sectionItems = items.filter((i) => i.costType === cfg.key);
+    return {
+      ...cfg,
+      items: sectionItems,
+      subtotal: sectionItems.reduce((sum, i) => sum + i.rate * i.qty, 0),
+    };
+  }).filter((s) => s.items.length > 0);
+
   const handleCopyToClipboard = () => {
     const text = generateQuoteText(items, subtotal, gst, total, warehouse, companyName);
     navigator.clipboard.writeText(text).catch(() => {});
@@ -216,173 +241,231 @@ export default function QuoteSummary({
           </div>
         ) : (
           <>
-            <button
-              onClick={() => setItemsExpanded(!itemsExpanded)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                width: '100%',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '0 0 8px',
-                marginBottom: itemsExpanded ? 6 : 0,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 10,
-                  color: 'var(--text-faint)',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  fontWeight: 600,
-                }}
-              >
-                {items.length} Service{items.length > 1 ? 's' : ''} Selected
-              </span>
-              {itemsExpanded ? (
-                <FiChevronUp size={13} style={{ color: 'var(--text-faint)' }} />
-              ) : (
-                <FiChevronDown size={13} style={{ color: 'var(--text-faint)' }} />
-              )}
-            </button>
-            {itemsExpanded && (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                maxHeight: 280,
-                overflowY: 'auto',
-              }}
-            >
-              {items.map((item) => (
-                <div
-                  key={item.code}
+            {sections.map((section) => (
+              <div key={section.key} style={{ marginBottom: 14 }}>
+                {/* Section Header */}
+                <button
+                  onClick={() => toggleSection(section.key)}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    fontSize: 12,
-                    padding: '5px 0',
-                    gap: 6,
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '0 0 6px',
+                    marginBottom: expandedSections[section.key] ? 4 : 0,
                   }}
                 >
-                  <button
-                    onClick={() => onRemoveItem && onRemoveItem(item.code)}
-                    title="Remove service"
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 4,
-                      border: 'none',
-                      background: 'transparent',
-                      color: 'var(--text-faint)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      padding: 0,
-                      transition: 'color 0.15s',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#EF4444')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-faint)')}
-                  >
-                    <FiTrash2 size={11} />
-                  </button>
-                  <div style={{ color: 'var(--text-secondary)', flex: 1, lineHeight: 1.35, minWidth: 0, wordBreak: 'break-word' }}>
-                    {item.name}
-                  </div>
-                  <div
+                  <span
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 0,
-                      flexShrink: 0,
+                      gap: 6,
+                      fontSize: 10,
+                      color: COST_TYPE_COLORS[section.key] || 'var(--text-faint)',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      fontWeight: 700,
                     }}
                   >
-                    <button
-                      onClick={() => onQtyChange && onQtyChange(item.code, item.qty - 1)}
+                    <span
                       style={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '4px 0 0 4px',
-                        border: '1px solid var(--border)',
-                        background: 'var(--gray-50)',
-                        color: 'var(--text-muted)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 0,
-                        fontSize: 11,
+                        width: 7,
+                        height: 7,
+                        borderRadius: '50%',
+                        background: COST_TYPE_COLORS[section.key] || 'var(--text-faint)',
+                        flexShrink: 0,
                       }}
-                    >
-                      <FiMinus size={10} />
-                    </button>
-                    <div
-                      style={{
-                        width: 26,
-                        height: 20,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 10,
-                        fontWeight: 700,
-                        color: 'var(--text-primary)',
-                        borderTop: '1px solid var(--border)',
-                        borderBottom: '1px solid var(--border)',
-                        background: 'var(--white)',
-                      }}
-                    >
-                      {item.qty}
-                    </div>
-                    <button
-                      onClick={() => onQtyChange && onQtyChange(item.code, item.qty + 1)}
-                      style={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '0 4px 4px 0',
-                        border: '1px solid var(--border)',
-                        background: 'var(--gray-50)',
-                        color: 'var(--text-muted)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 0,
-                        fontSize: 11,
-                      }}
-                    >
-                      <FiPlus size={10} />
-                    </button>
-                  </div>
+                    />
+                    {section.label} ({section.items.length})
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)' }}>
+                      {formatCurrency(section.subtotal)}
+                    </span>
+                    {expandedSections[section.key] ? (
+                      <FiChevronUp size={12} style={{ color: 'var(--text-faint)' }} />
+                    ) : (
+                      <FiChevronDown size={12} style={{ color: 'var(--text-faint)' }} />
+                    )}
+                  </span>
+                </button>
+
+                {/* Section Items */}
+                {expandedSections[section.key] && (
                   <div
                     style={{
-                      color: 'var(--text-primary)',
-                      fontSize: 11,
-                      fontWeight: 600,
-                      marginLeft: 4,
-                      whiteSpace: 'nowrap',
-                      minWidth: 52,
-                      textAlign: 'right',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 2,
+                      maxHeight: 200,
+                      overflowY: 'auto',
+                      paddingLeft: 13,
+                      borderLeft: `2px solid ${COST_TYPE_COLORS[section.key] || 'var(--border)'}`,
+                      marginLeft: 3,
                     }}
                   >
-                    {formatCurrency(item.rate * item.qty)}
+                    {section.items.map((item) => (
+                      <div
+                        key={item.code}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          fontSize: 12,
+                          padding: '5px 0',
+                          gap: 6,
+                        }}
+                      >
+                        <button
+                          onClick={() => onRemoveItem && onRemoveItem(item.code)}
+                          title="Remove service"
+                          style={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: 4,
+                            border: 'none',
+                            background: 'transparent',
+                            color: 'var(--text-faint)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                            padding: 0,
+                            transition: 'color 0.15s',
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = '#EF4444')}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-faint)')}
+                        >
+                          <FiTrash2 size={11} />
+                        </button>
+                        <div style={{ color: 'var(--text-secondary)', flex: 1, lineHeight: 1.35, minWidth: 0, wordBreak: 'break-word' }}>
+                          {item.name}
+                        </div>
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 0,
+                            flexShrink: 0,
+                          }}
+                        >
+                          <button
+                            onClick={() => onQtyChange && onQtyChange(item.code, item.qty - 1)}
+                            style={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: '4px 0 0 4px',
+                              border: '1px solid var(--border)',
+                              background: 'var(--gray-50)',
+                              color: 'var(--text-muted)',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: 0,
+                              fontSize: 11,
+                            }}
+                          >
+                            <FiMinus size={10} />
+                          </button>
+                          <div
+                            style={{
+                              width: 26,
+                              height: 20,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: 10,
+                              fontWeight: 700,
+                              color: 'var(--text-primary)',
+                              borderTop: '1px solid var(--border)',
+                              borderBottom: '1px solid var(--border)',
+                              background: 'var(--white)',
+                            }}
+                          >
+                            {item.qty}
+                          </div>
+                          <button
+                            onClick={() => onQtyChange && onQtyChange(item.code, item.qty + 1)}
+                            style={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: '0 4px 4px 0',
+                              border: '1px solid var(--border)',
+                              background: 'var(--gray-50)',
+                              color: 'var(--text-muted)',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: 0,
+                              fontSize: 11,
+                            }}
+                          >
+                            <FiPlus size={10} />
+                          </button>
+                        </div>
+                        <div
+                          style={{
+                            color: 'var(--text-primary)',
+                            fontSize: 11,
+                            fontWeight: 600,
+                            marginLeft: 4,
+                            whiteSpace: 'nowrap',
+                            minWidth: 52,
+                            textAlign: 'right',
+                          }}
+                        >
+                          {formatCurrency(item.rate * item.qty)}
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                )}
+              </div>
+            ))}
+
+            {/* Totals Breakdown */}
+            <div style={{ borderTop: '1px solid var(--border)', marginTop: 8, paddingTop: 12 }}>
+              {sections.map((section) => (
+                <div
+                  key={section.key}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: 11,
+                    color: 'var(--text-secondary)',
+                    marginBottom: 5,
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <span
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: '50%',
+                        background: COST_TYPE_COLORS[section.key],
+                        flexShrink: 0,
+                      }}
+                    />
+                    {section.label}
+                  </span>
+                  <span style={{ fontWeight: 600 }}>{formatCurrency(section.subtotal)}</span>
                 </div>
               ))}
-            </div>
-            )}
-
-            <div style={{ borderTop: '1px solid var(--border)', marginTop: 14, paddingTop: 12 }}>
               <div
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   fontSize: 12,
                   color: 'var(--text-secondary)',
+                  marginTop: 8,
+                  paddingTop: 8,
+                  borderTop: '1px solid var(--border)',
                   marginBottom: 6,
                 }}
               >
