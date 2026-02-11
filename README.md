@@ -10,29 +10,33 @@ An interactive web-based quote estimation tool for **Leader Computers' 3PL (Thir
 
 The Leader 3PL Quote Builder allows resellers, partners, and account managers to:
 
-- **Build custom logistics quotes** by selecting from 57+ warehousing and fulfilment services across 6 categories
+- **Build custom logistics quotes** by selecting from 57+ warehousing and fulfilment services organized into **3 cost categories**:
+  - **Up-Front Costs** — One-time inbound, receiving & onboarding charges
+  - **Ongoing Storage Costs** — Recurring weekly storage & system fees
+  - **Inventory Costs** — Pick, pack, dispatch, returns, QC, labour & admin
 - **Select a warehouse** from 5 nationwide branch locations (SA, QLD, NSW, WA, VIC) with an interactive map
-- **Adjust quantities** for each service and see real-time pricing calculations (ex-GST and inc-GST)
-- **Export quotes as PDF** with the Leader 3PL branding, or copy to clipboard
+- **Adjust quantities** for each service and see real-time pricing calculations with **section-specific subtotals** (ex-GST and inc-GST)
+- **Export quotes as PDF** with color-coded cost sections, Leader 3PL branding, or copy to clipboard
 - **Send quotes via email** to either a partner account manager or as a new enquiry
 - **View POA (Price on Application)** items for services that require custom pricing
 
 ## Key Features
 
 - **Interactive Map** — Full-width Leaflet/OpenStreetMap with 5 warehouse locations, rich popup cards with branch details and contact info
-- **Real-time Quote Sidebar** — Collapsible service list with inline quantity controls (+/−), trash-to-remove, and live subtotal/GST/total calculation
-- **PDF Export** — Professionally branded PDF quote generation with logo, service table, and pricing summary
+- **3-Section Cost Breakdown** — Services organized into Up-Front Costs, Ongoing Storage Costs, and Inventory Costs with color-coded subtotals
+- **Real-time Quote Sidebar** — Collapsible cost sections with inline quantity controls (+/−), trash-to-remove, and live section subtotals plus grand total (ex-GST/inc-GST)
+- **PDF Export** — Professionally branded PDF with color-coded cost sections, separate tables per category, and detailed pricing breakdown
 - **Email Integration** — Pre-filled mailto links for partner enquiries (routed to the appropriate account manager) and general enquiries
 - **Responsive Design** — Mobile-friendly with a floating quote bar and slide-up panel for smaller screens
-- **Search** — Quickly find any service by name or code across all categories
+- **Search** — Quickly find any service by name or code across all cost categories
 
 ## How to Use
 
-1. **Choose a warehouse** — Click a state button (e.g. "NSW — Lidcombe") or click a marker on the map
-2. **Browse services** — Use the category tabs or search bar to find services
+1. **Choose a warehouse** — Click a state button (e.g. "NSW — Sydney") or click a marker on the map
+2. **Browse services** — Use the 3 cost-section tabs (Up-Front, Ongoing Storage, Inventory) or search bar to find services
 3. **Add to quote** — Use the +/− buttons on any service card to add quantities
-4. **Review your quote** — The sidebar shows all selected services with totals; adjust quantities or remove items directly
-5. **Export or send** — Click "Send Quote" to email, "PDF" to download, or "Copy" to clipboard
+4. **Review your quote** — The sidebar shows all selected services organized by cost type with section subtotals; expand/collapse sections, adjust quantities, or remove items directly
+5. **Export or send** — Click "Send Quote" to email, "PDF" to download a color-coded breakdown, or "Copy" to clipboard
 
 ## Tech Stack
 
